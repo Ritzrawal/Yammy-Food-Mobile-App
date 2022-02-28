@@ -7,6 +7,8 @@ import Orders from './myaccount/Orders';
 import Favourites from './myaccount/Favourites';
 import Payments from './myaccount/Payments';
 import Addresses from './myaccount/Addresses';
+
+import { getUsers } from '../helpers/api.request';
 import EditProfileModal from './modals/EditProfileModal';
 
 class MyAccount extends React.Component {
@@ -14,15 +16,46 @@ class MyAccount extends React.Component {
     super(props, context);
 
     this.state = {
+      user: '',
       showEditProfile: false,
     };
   }
   hideEditProfile = () => this.setState({ showEditProfile: false });
 
+  componentDidMount = () => {
+    this.getUserOrders();
+  };
+
+  getUserOrders = async () => {
+    const currentUser = localStorage.getItem('currentUser');
+
+    const { error, data } = await getUsers();
+
+    if (error) {
+      console.log(error);
+    }
+
+    console.log('users list  ', data);
+
+    const users =
+      data &&
+      data.users
+        .filter((user) => user.id === currentUser)
+        .map((userId) => {
+          return userId;
+        });
+    console.log('entry users', users[0]);
+    this.setState({ user: users[0] });
+  };
+
   render() {
     return (
       <>
         <EditProfileModal
+          firstName={this.state.user.firstName}
+          lastName={this.state.user.lastName}
+          email={this.state.user.email}
+          phone={this.state.user.phone}
           show={this.state.showEditProfile}
           onHide={this.hideEditProfile}
         />
@@ -40,9 +73,12 @@ class MyAccount extends React.Component {
                           alt="gurdeep singh osahan"
                         />
                         <div className="osahan-user-media-body">
-                          <h6 className="mb-2">Gurdeep Singh</h6>
-                          <p className="mb-1">+91 85680-79956</p>
-                          <p>iamosahan@gmail.com</p>
+                          <h6 className="mb-2">
+                            {this.state.user.firstName}{' '}
+                            {this.state.user.lastName}
+                          </h6>
+                          <p className="mb-1">{this.state.user.phone}</p>
+                          <p>{this.state.user.email}</p>
                           <p className="mb-0 text-black font-weight-bold">
                             <Link
                               to="#"
@@ -57,7 +93,7 @@ class MyAccount extends React.Component {
                       </div>
                     </div>
                   </div>
-                  <ul className="nav flex-column border-0 pt-4 pl-4 pb-4">
+                  {/* <ul className="nav flex-column border-0 pt-4 pl-4 pb-4">
                     <li className="nav-item">
                       <NavLink
                         className="nav-link"
@@ -103,7 +139,7 @@ class MyAccount extends React.Component {
                         <i className="icofont-location-pin"></i> Addresses
                       </NavLink>
                     </li>
-                  </ul>
+                  </ul> */}
                 </div>
               </Col>
               <Col md={9}>

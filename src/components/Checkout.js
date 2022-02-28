@@ -33,10 +33,13 @@ import { overrideCart } from '../store/redux/cart/actions';
 
 import PaymentRequestAPI from '../helpers/api-card';
 import CartAPIManager from '../helpers/cart-api-manager';
+import { setUserData } from '../store/redux/auth/auth';
 
 import getToken from '../helpers/getToken';
 
 import { getUsers } from '../helpers/api.request';
+
+import StripeContainer from '../components/cart/StripeContainer';
 
 // import { overrideCart } from '../store/redux/cart/actions';
 import axios from 'axios';
@@ -65,73 +68,11 @@ const Checkout = () => {
     (state) => state.checkout.shippingAddress,
   );
 
+  const totalPrice = useSelector((state) => state.cart.price);
+
   const [isUser, setUser] = useState('');
 
-  // const stripe = useStripe();
-  // const elements = useElements();
-  // constructor(props, context) {
-  //   super(props, context);
-
-  //   this.state = {
-  //     showAddressModal: false,
-  //   };
-  // }
-
   const hideAddressModal = () => setShowAddressModal(false);
-  const getQty = ({ id, quantity }) => {
-    //console.log(id);
-    //console.log(quantity);
-  };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const { error, paymentMethod } = await stripe.createPaymentMethod({
-  //     type: 'card',
-  //     card: elements.getElement(CardElement),
-  //   });
-
-  //   if (!error) {
-  //     try {
-  //       const { id } = paymentMethod;
-  //       const response = await axios.post(
-  //         'https://murmuring-caverns-94283.herokuapp.com/',
-  //         {
-  //           amount: 10,
-  //           id,
-  //         },
-  //       );
-
-  //       if (response.data.success) {
-  //         console.log('Successful payment');
-  //         // setSuccess(true);
-  //       }
-  //     } catch (error) {
-  //       console.log('Error', error);
-  //     }
-  //   } else {
-  //     console.log(error.message);
-  //   }
-  // };
-
-  const CARD_OPTIONS = {
-    iconStyle: 'solid',
-    style: {
-      base: {
-        iconColor: '#c4f0ff',
-        color: '#fff',
-        fontWeight: 500,
-        fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
-        fontSize: '16px',
-        fontSmoothing: 'antialiased',
-        ':-webkit-autofill': { color: '#fce883' },
-        '::placeholder': { color: '#87bbfd' },
-      },
-      invalid: {
-        iconColor: '#ffc7ee',
-        color: '#ffc7ee',
-      },
-    },
-  };
 
   useEffect(() => {
     getCurrentUser();
@@ -157,6 +98,9 @@ const Checkout = () => {
     return setUser(userId[0]);
   };
 
+  // 'https://fast-hollows-64479.herokuapp.com/paypal/' +
+  //       cartPrice.newTotal,
+
   const persistOrder = () => {
     apiManager.current.placeOrder(
       cartItems,
@@ -166,7 +110,7 @@ const Checkout = () => {
       // deliveryNote,
       // deliveryTime,
       // selectedPaymentMethod,
-      // cartPrice,
+      cartPrice,
       () => {
         dispatch(overrideCart([]));
       },
@@ -174,82 +118,85 @@ const Checkout = () => {
     history.push('thanks');
   };
 
-  // const completePayment = async (stripeCustomerID, source) => {
-  //   return await apiManager.current.chargeCustomer({
-  //     customer: stripeCustomerID,
-  //     currency: 'eur',
-  //     amount: totalPrice * 100,
-  //     source: source,
-  //   });
-  // };
+  const completePayment = async (stripeCustomerID, source) => {
+    return await apiManager.current.chargeCustomer({
+      customer: stripeCustomerID,
+      currency: 'usd',
+      amount: 100,
+      source: source,
+    });
+  };
 
-  // const handleNonNativePay = async (stripeCustomerID) => {
-  //   const stripeResponse = await completePayment(
-  //     stripeCustomerID,
-  //     selectedPaymentMethod.cardId,
-  //   );
+  const handleNonNativePay = async (stripeCustomerID) => {
+    const stripeResponse = await completePayment(
+      stripeCustomerID,
+      selectedPaymentMethod.cardId,
+    );
 
-  //   if (stripeResponse.success && stripeResponse?.data?.response?.id) {
-  //     persistOrder();
-  //     return;
-  //   }
-  //   console.log('Transaction failed, please select another card');
-  // };
+    if (stripeResponse.success && stripeResponse?.data?.response?.id) {
+      persistOrder();
+      return;
+    }
+    console.log('Transaction failed, please select another card');
+  };
 
-  // const placeOrder = async () => {
-  //   dispatch(
-  //     setShippingAddress({
-  //       ...shippingAddress,
-  //     }),
-  //   );
+  const setStripeCustomerId = async () => {
+    let stripeCustomerID = isUser.stripeCustomerID;
+    if (!stripeCustomerID) {
+      const response = await paymentRequestAPI.current.getStripeCustomerID(
+        isUser.email,
+      );
 
-  //   const stripeCustomerID = await setStripeCustomerId();
+      stripeCustomerID = response;
+      // userAPIManager.updateUserData(currentUser.id, {
+      //   stripeCustomerID: response,
+      // });
+      dispatch(
+        setUserData({
+          user: { ...isUser, stripeCustomerID: response },
+        }),
+      );
 
-  //   if (!stripeCustomerID) {
-  //     console.log('An error occurred, please try again later');
-  //     return;
-  //   }
+      return stripeCustomerID;
+    }
 
-  //   if (selectedPaymentMethod.isCashOnDelivery) {
-  //     return handleCashOnDelivery();
-  //   }
-  //   return handleNonNativePay(stripeCustomerID);
-  // };
+    return stripeCustomerID;
+  };
 
-  // const setStripeCustomerId = async () => {
-  //   let stripeCustomerID = currentUser.stripeCustomerID;
-  //   if (!stripeCustomerID) {
-  //     const response = await paymentRequestAPI.current.getStripeCustomerID(
-  //       currentUser.email,
-  //     );
+  const placeOrder = async () => {
+    // dispatch(
+    //   setShippingAddress({
+    //     ...shippingAddress,
+    //   }),
+    // );
 
-  //     stripeCustomerID = response;
-  //     userAPIManager.updateUserData(currentUser.id, {
-  //       stripeCustomerID: response,
-  //     });
-  //     dispatch(
-  //       setUserData({
-  //         user: { ...currentUser, stripeCustomerID: response },
-  //       }),
-  //     );
+    const stripeCustomerID = await setStripeCustomerId();
 
-  //     return stripeCustomerID;
-  //   }
+    if (!stripeCustomerID) {
+      console.log('An error occurred, please try again later');
+      return;
+    }
+    console.log('hello payment', handleNonNativePay(stripeCustomerID));
+    return handleNonNativePay(stripeCustomerID);
+  };
 
-  //   return stripeCustomerID;
-  // };
+  console.log('get the user value', isUser);
 
   return (
     <section className="offer-dedicated-body mt-4 mb-4 pt-2 pb-2">
-      <AddAddressModal show={showAddressModal} onHide={hideAddressModal} />
+      <AddAddressModal
+        show={showAddressModal}
+        onHide={hideAddressModal}
+        address={isUser.shippingAddress}
+      />
       <Container>
         <Row>
           <Col md={8}>
             <div className="offer-dedicated-body-left">
-              <div className="bg-white rounded shadow-sm p-4 mb-4">
+              {/* <div className="bg-white rounded shadow-sm p-4 mb-4">
                 <h6 className="mb-3">You may also like</h6>
                 <ItemsCarousel />
-              </div>
+              </div> */}
               <div className="pt-2"></div>
               <div className="bg-white rounded shadow-sm p-4 mb-4">
                 <h4 className="mb-1">Choose a delivery address</h4>
@@ -257,23 +204,6 @@ const Checkout = () => {
                   Multiple addresses in this location
                 </h6>
                 <Row>
-                  <Col md={6}>
-                    <ChooseAddressCard
-                      boxclassName="border border-success"
-                      title="Work"
-                      icoIcon="briefcase"
-                      iconclassName="icofont-3x"
-                      address="NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India"
-                    />
-                  </Col>
-                  <Col md={6}>
-                    <ChooseAddressCard
-                      title="Work"
-                      icoIcon="briefcase"
-                      iconclassName="icofont-3x"
-                      address="NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India"
-                    />
-                  </Col>
                   <Col md={6}>
                     <ChooseAddressCard
                       title="Work"
@@ -322,21 +252,8 @@ const Checkout = () => {
                     <Col sm={8} className="pl-0">
                       <Tab.Content className="h-100">
                         <Tab.Pane eventKey="first">
-                          <h6 className="mb-3 mt-0 mb-3">Add new card</h6>
-                          <p>
-                            WE ACCEPT{' '}
-                            <span className="osahan-card">
-                              <Icofont icon="visa-alt" />{' '}
-                              <Icofont icon="mastercard-alt" />{' '}
-                              <Icofont icon="american-express-alt" />{' '}
-                              <Icofont icon="payoneer-alt" />{' '}
-                              <Icofont icon="apple-pay-alt" />{' '}
-                              <Icofont icon="bank-transfer-alt" />{' '}
-                              <Icofont icon="discover-alt" />{' '}
-                              <Icofont icon="jcb-alt" />
-                            </span>
-                          </p>
-                          <Form>
+                          <StripeContainer placeOrder={persistOrder} />
+                          {/* <Form>
                             <div className="form-row">
                               <Form.Group className="col-md-12">
                                 <Form.Label>Card number</Form.Label>
@@ -385,15 +302,15 @@ const Checkout = () => {
                                 />
                               </Form.Group>
                               <Form.Group className="col-md-12 mb-0">
-                                <Link
-                                  to="/thanks"
+                                <div
+                                  onClick={placeOrder}
                                   className="btn btn-success btn-block btn-lg">
-                                  PAY $1329
+                                  PAY NOW
                                   <Icofont icon="long-arrow-right" />
-                                </Link>
+                                </div>
                               </Form.Group>
                             </div>
-                          </Form>
+                          </Form> */}
                         </Tab.Pane>
                         {/* <Tab.Pane eventKey="second">
                           <h6 className="mb-3 mt-0 mb-3">Add new food card</h6>
@@ -591,7 +508,7 @@ const Checkout = () => {
               </div>
             </div>
           </Col>
-          <Col md={4}>
+          {/* <Col md={4}>
             <div className="generator-bg rounded shadow-sm mb-4 p-4 osahan-cart-item">
               <div className="d-flex mb-4 osahan-cart-item-profile">
                 <Image
@@ -737,7 +654,7 @@ const Checkout = () => {
                 src="https://dummyimage.com/352x504/ccc/ffffff.png&text=Google+ads"
               />
             </div>
-          </Col>
+          </Col> */}
         </Row>
       </Container>
     </section>

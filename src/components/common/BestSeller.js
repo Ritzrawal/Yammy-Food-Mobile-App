@@ -130,21 +130,16 @@ class BestSeller extends React.Component {
           ) : (
             ''
           )}
-          <Link to="#">
-            <Image
-              src={this.props.image}
-              className={this.props.imageClass}
-              alt={this.props.imageAlt}
-            />
-          </Link>
+
+          <Image
+            src={this.props.image}
+            className={this.props.imageClass}
+            alt={this.props.imageAlt}
+          />
         </div>
         <div className="p-3 position-relative">
           <div className="list-card-body">
-            <h6 className="mb-1">
-              <Link to="#" className="text-black">
-                {this.props.title}
-              </Link>
-            </h6>
+            <h6 className="mb-1">{this.props.title}</h6>
             {this.props.subTitle ? (
               <p className="text-gray mb-3">{this.props.subTitle}</p>
             ) : (
@@ -237,7 +232,7 @@ BestSeller.propTypes = {
   qty: PropTypes.number,
   minValue: PropTypes.number,
   maxValue: PropTypes.number,
-  getValue: PropTypes.func.isRequired,
+  getValue: PropTypes.func,
 };
 BestSeller.defaultProps = {
   imageAlt: '',

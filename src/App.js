@@ -1,21 +1,22 @@
+import React from 'react';
+import { Provider } from 'react-redux';
+import store from './store';
+import getToken from './helpers/getToken';
+import Login from './components/Login';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
+import AppRoute from './app/AppRoute';
 
-import React from 'react'
-import { Provider } from "react-redux";
-import store from "./store";
-import { BrowserRouter as Router,Route } from 'react-router-dom'
-
-import AppRoute from './app/AppRoute'
-
-function App() {
+const App = () => {
   return (
     <Provider store={store}>
       <Router>
-          <Route path="/" component={AppRoute} />
+        <Route path="/" component={AppRoute} />
       </Router>
     </Provider>
-  )
-}
+  );
+};
 
-export default App
+export default App;
 
+//          'http://localhost:8000/create-payment-intent',

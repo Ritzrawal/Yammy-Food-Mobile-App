@@ -8,92 +8,78 @@ import CardItem from './common/CardItem';
 import SectionHeading from './common/SectionHeading';
 import FontAwesome from './common/FontAwesome';
 import './common/styles/index.css';
+import HomePaginatedItems from './paginations/HomePage';
+import SkeletonProduct from './common/Loader/Product';
 
-import { getRestaurant } from '../helpers/api.request';
+import { getCaterogies } from '../helpers/api.request';
 
 const Index = () => {
   const [vendors, setVendors] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getCateroriesData();
   }, []);
 
   const getCateroriesData = async () => {
-    const { data, error } = await getRestaurant();
+    const { data, error } = await getCaterogies();
     if (error) {
       return console.log(error);
     }
-    setVendors(data.restaurants);
-    console.log('hello data', data.restaurants);
+
+    setVendors(data.categories);
+    setLoading(false);
   };
 
   return (
     <>
       <TopSearch />
       <section className="section pt-5 pb-5 bg-white homepage-add-section">
+        <SectionHeading heading="Best Deals" />
         <Container>
-          <Row>
-            <Col md={3} xs={6}>
-              <ProductBox
-                image="img/pro1.jpg"
-                imageClass="img-fluid rounded"
-                imageAlt="product"
-                linkUrl="#"
-              />
-            </Col>
-            <Col md={3} xs={6}>
-              <ProductBox
-                image="img/2.jpg"
-                imageClass="img-fluid rounded"
-                imageAlt="product"
-                linkUrl="#"
-              />
-            </Col>
-          </Row>
-        </Container>
-      </section>
-
-      <section className="section pt-5 pb-5 products-section">
-        <Container>
-          <SectionHeading
-            heading="Popular Brands"
-            subHeading="Top restaurants, cafes, pubs, and bars in Ludhiana, based on trends"
-          />
-          <Row>
-            <Col md={12}>
-              <OwlCarousel
-                nav
-                loop
-                {...options}
-                className="owl-carousel-four owl-theme">
-                {vendors &&
-                  vendors.map((resturnat, index) => {
-                    return (
-                      <div className="item" key={index}>
-                        <CardItem
+          {!loading ? (
+            <Row>
+              <Col md={12}>
+                <OwlCarousel
+                  nav
+                  loop
+                  {...options}
+                  className="owl-carousel-four owl-theme">
+                  {vendors &&
+                    vendors.map((resturnat, index) => {
+                      return (
+                        <ProductBox
+                          key={resturnat.id}
                           id={resturnat.id}
                           title={resturnat.title}
-                          subTitle={resturnat.description}
-                          imageAlt="Product"
                           image={resturnat.photo}
-                          imageClass="homepage-image-card"
-                          linkUrl="detail"
-                          offerText="65% off | Use Coupon OSAHAN50"
-                          time={resturnat.deliverytime}
-                          price={resturnat.price}
-                          showPromoted={true}
-                          promotedVariant="dark"
-                          favIcoIconColor="text-danger"
-                          rating="3.1 (300+)"
-                          singleVendor={resturnat}
-                          minamount={resturnat.minamount}
-                          deliveryfee={resturnat.deliveryfee}
+                          imageClass="img-fluid-product"
+                          imageAlt="product"
+                          linkUrl="#"
+                          titleClass="product-title-class"
+                          boxClass="product-box-image"
                         />
-                      </div>
-                    );
-                  })}
-              </OwlCarousel>
-            </Col>
+                      );
+                    })}
+                </OwlCarousel>
+              </Col>
+            </Row>
+          ) : (
+            <div className="skeleton-container-display-image">
+              {[1, 2, 3, 4].map((loading) => (
+                <div className="col-3" key={loading}>
+                  <SkeletonProduct />
+                </div>
+              ))}
+            </div>
+          )}
+        </Container>
+      </section>
+      <section className="section pt-5 pb-5 products-section">
+        <Container>
+          <SectionHeading heading="Most Popular" />
+          <Row>
+            <HomePaginatedItems itemsPerPage={12} />
           </Row>
         </Container>
       </section>

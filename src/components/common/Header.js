@@ -13,7 +13,9 @@ import CartDropdownHeader from '../cart/CartDropdownHeader';
 import CartDropdownItem from '../cart/CartDropdownItem';
 import Icofont from 'react-icofont';
 import { connect } from 'react-redux';
+// import {useDispatch} from 'react-router-dom'
 import { cart } from '../../store/redux/cart/reducers';
+import { logoutUser } from '../../store/redux/auth/actions';
 
 class Header extends React.Component {
   constructor(props) {
@@ -56,6 +58,15 @@ class Header extends React.Component {
       });
     }
   };
+
+  onLogoutUser = () => {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('vendorID');
+    localStorage.removeItem('currentUser');
+    // console.log('Props info', this.props);
+    this.props.history.push('/login');
+    // this.props.logoutUser(this.props.dispatch, this.props.history);
+  };
   render() {
     return (
       <div ref={(node) => (this.node = node)}>
@@ -84,11 +95,11 @@ class Header extends React.Component {
                   eventKey={1}
                   as={NavLink}
                   activeclassname="active"
-                  to="/offers">
-                  <Icofont icon="sale-discount" /> Offers{' '}
-                  <Badge variant="danger">New</Badge>
+                  to="/listing">
+                  Restaurants
+                  {/* <Badge variant="danger">New</Badge> */}
                 </Nav.Link>
-                <NavDropdown
+                {/* <NavDropdown
                   title="Restaurants"
                   alignRight
                   className="border-0">
@@ -113,8 +124,8 @@ class Header extends React.Component {
                     to="/checkout">
                     Checkout
                   </NavDropdown.Item>
-                </NavDropdown>
-                <NavDropdown title="Pages" alignRight>
+                </NavDropdown> */}
+                {/* <NavDropdown title="Pages" alignRight>
                   <NavDropdown.Item
                     eventKey={3.1}
                     as={NavLink}
@@ -157,54 +168,8 @@ class Header extends React.Component {
                     to="/extra">
                     Extra
                   </NavDropdown.Item>
-                </NavDropdown>
-                <NavDropdown
-                  alignRight
-                  title={
-                    <DropDownTitle
-                      className="d-inline-block"
-                      image="img/user/4.png"
-                      imageAlt="user"
-                      imageClass="nav-osahan-pic rounded-pill"
-                      title="My Account"
-                    />
-                  }>
-                  <NavDropdown.Item
-                    eventKey={4.1}
-                    as={NavLink}
-                    activeclassname="active"
-                    to="/myaccount/orders">
-                    <Icofont icon="food-cart" /> Orders
-                  </NavDropdown.Item>
-                  <NavDropdown.Item
-                    eventKey={4.2}
-                    as={NavLink}
-                    activeclassname="active"
-                    to="/myaccount/offers">
-                    <Icofont icon="sale-discount" /> Offers
-                  </NavDropdown.Item>
-                  <NavDropdown.Item
-                    eventKey={4.3}
-                    as={NavLink}
-                    activeclassname="active"
-                    to="/myaccount/favourites">
-                    <Icofont icon="heart" /> Favourites
-                  </NavDropdown.Item>
-                  <NavDropdown.Item
-                    eventKey={4.4}
-                    as={NavLink}
-                    activeclassname="active"
-                    to="/myaccount/payments">
-                    <Icofont icon="credit-card" /> Payments
-                  </NavDropdown.Item>
-                  <NavDropdown.Item
-                    eventKey={4.5}
-                    as={NavLink}
-                    activeclassname="active"
-                    to="/myaccount/addresses">
-                    <Icofont icon="location-pin" /> Addresses
-                  </NavDropdown.Item>
-                </NavDropdown>
+                </NavDropdown> */}
+
                 <NavDropdown
                   activeclassname="active"
                   alignRight
@@ -282,6 +247,54 @@ class Header extends React.Component {
                   to="/login">
                   <Icofont icon="user" /> Login
                 </Nav.Link>
+                <NavDropdown
+                  alignRight
+                  title={
+                    <DropDownTitle
+                      className="d-inline-block"
+                      image="img/user/4.png"
+                      imageAlt="user"
+                      imageClass="nav-osahan-pic rounded-pill"
+                      title="My Account"
+                    />
+                  }>
+                  <NavDropdown.Item
+                    eventKey={4.1}
+                    as={NavLink}
+                    activeclassname="active"
+                    to="/myaccount/orders">
+                    <Icofont icon="user-alt-4" /> Account Details
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    eventKey={4.2}
+                    as={NavLink}
+                    activeclassname="active"
+                    to="/myaccount/offers">
+                    <Icofont icon="contacts" /> Contact Us
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    eventKey={4.3}
+                    as={NavLink}
+                    activeclassname="active"
+                    onClick={this.onLogoutUser}
+                    to="/login">
+                    <Icofont icon="logout" /> Log Out
+                  </NavDropdown.Item>
+                  {/* <NavDropdown.Item
+                    eventKey={4.4}
+                    as={NavLink}
+                    activeclassname="active"
+                    to="/myaccount/payments">
+                    <Icofont icon="credit-card" /> Payments
+                  </NavDropdown.Item>
+                  <NavDropdown.Item
+                    eventKey={4.5}
+                    as={NavLink}
+                    activeclassname="active"
+                    to="/myaccount/addresses">
+                    <Icofont icon="location-pin" /> Addresses
+                  </NavDropdown.Item> */}
+                </NavDropdown>
               </Nav>
             </Navbar.Collapse>
           </Container>
@@ -297,4 +310,4 @@ class Header extends React.Component {
 //   };
 // };
 
-export default Header;
+export default connect(null, { logoutUser })(Header);

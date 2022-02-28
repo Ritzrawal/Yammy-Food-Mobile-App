@@ -1,7 +1,7 @@
 import { firebase } from '../api/firebase';
 
 import PaymentRequestAPI from './api-card';
-import uuid from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 export default class CartAPIManager {
   constructor() {
     this.ref = firebase.firestore().collection('restaurant_orders');
@@ -58,7 +58,7 @@ export default class CartAPIManager {
       // deliverynote,
       // deliveryTime,
       // payment,
-      cartPrice: 200,
+      cartPrice,
     };
 
     if (vendor?.id) {

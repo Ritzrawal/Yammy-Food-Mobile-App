@@ -1,29 +1,37 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
-import PropTypes from 'prop-types'; 
-import {Image} from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+import { Image } from 'react-bootstrap';
+import { useHistory } from 'react-router';
+import { setVendors } from '../../store/redux/vendors/actions';
 
-class ProductBox extends React.Component {
-	render() {
-    	return (
-	      <div className={this.props.boxClass}>
-	         <Link to={this.props.linkUrl}>
-             <Image src={this.props.image} className={this.props.imageClass} alt={this.props.imageAlt} />
-             {this.props.title?
-               <h6>{this.props.title.substring(0, 10)}</h6>
-               :""
-             }
-             {this.props.counting?
-              <p>{this.props.counting}</p>
-               :""
-             }
-           </Link>
+const ProductBox = (props) => {
+  const history = useHistory();
+  const dispatch = useDispatch();
 
-	      </div>
-		);
-	}
-}
-
+  const onClickImage = () => {
+    history.push('restaurant-list');
+    console.log('vendor info', props.id);
+    localStorage.setItem('vendorID', props.id);
+    // dispatch(setVendors(props.singleVendor));
+  };
+  return (
+    <div className={props.boxClass} onClick={onClickImage}>
+      <Image
+        src={props.image}
+        className={props.imageClass}
+        alt={props.imageAlt}
+      />
+      {props.title ? (
+        <h6 className={props.titleClass}>{props.title.substring(0, 10)}</h6>
+      ) : (
+        ''
+      )}
+      {props.counting ? <p>{props.counting}</p> : ''}
+    </div>
+  );
+};
 
 ProductBox.propTypes = {
   linkUrl: PropTypes.string.isRequired,
@@ -33,15 +41,17 @@ ProductBox.propTypes = {
   boxClass: PropTypes.string,
   title: PropTypes.string,
   counting: PropTypes.string,
+  id: PropTypes.string,
 };
 ProductBox.defaultProps = {
-  	imageAlt:'',
-    image:'',
-    imageClass:'',
-    linkUrl: '',
-    boxClass:'products-box',
-    title:'',
-    counting:'',
-}
+  imageAlt: '',
+  image: '',
+  imageClass: '',
+  linkUrl: '',
+  boxClass: 'products-box',
+  title: '',
+  counting: '',
+  id: '',
+};
 
 export default ProductBox;

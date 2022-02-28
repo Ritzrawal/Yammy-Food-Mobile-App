@@ -16,6 +16,7 @@ import { setUserData } from '../../store/redux/auth/auth';
 
 const AddAddressModal = (props) => {
   const dispatch = useDispatch();
+  const iamUser = localStorage.getItem('currentUser');
 
   // const [city, setCity] = useState('');
   // const [country, setCountry] = useState('');
@@ -46,24 +47,20 @@ const AddAddressModal = (props) => {
     // const { name, value } = e;
   };
 
-  // useEffect(() => {
-  //   //  props.navigation.setOptions({
-  //   //    headerRight: () => <View />,
-  //   //    headerTitle: IMLocalized('Delivery Address'),
-  //   //  });
-  //   var savedAddress =
-  //     (reduxShippingAddress &&
-  //       reduxShippingAddress.postalCode &&
-  //       reduxShippingAddress) ||
-  //     currentUser.shippingAddress;
-  //   if (savedAddress) {
-  //     setCity(savedAddress.city);
-  //     setCountry(savedAddress.country);
-  //     setLine1(savedAddress.line1);
-  //     setLine2(savedAddress.line2);
-  //     setPostalCode(savedAddress.postalCode);
-  //   }
-  // }, [1]);
+  useEffect(() => {
+    console.log('props address', props.address);
+    var savedAddress = props && props.address;
+    if (savedAddress) {
+      setForm({
+        ...form,
+        city: savedAddress.city,
+        line1: savedAddress.line1,
+        line2: savedAddress.line2,
+        country: savedAddress.country,
+        postalCode: savedAddress.postalCode,
+      });
+    }
+  }, [props.show]);
 
   const allFieldsCompleted = () => {
     if (form.city === '') {
@@ -83,7 +80,6 @@ const AddAddressModal = (props) => {
 
   const onSaveAddressPress = async () => {
     if (!allFieldsCompleted()) {
-      return console.log('error message');
     }
 
     try {
@@ -95,7 +91,6 @@ const AddAddressModal = (props) => {
       }
 
       storeUserShippingAddress(form);
-      //}
       dispatch(setShippingAddress(form));
     } catch (error) {
       // alert(error.message);
@@ -104,11 +99,12 @@ const AddAddressModal = (props) => {
   };
 
   const storeUserShippingAddress = (address) => {
-    updateUserShippingAddress(currentUser.id, address);
+    updateUserShippingAddress(iamUser, address);
     // Optimistically update local user object in redux with the new address
     dispatch(
       setUserData({ user: { ...currentUser, shippingAddress: address } }),
     );
+    props.onHide();
   };
 
   return (

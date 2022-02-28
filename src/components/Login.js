@@ -30,6 +30,10 @@ const Login = () => {
     // setSubmitting(true);
   };
 
+  const onSignup = () => {
+    history.push('/register');
+  };
+
   return (
     <Container fluid className="bg-white">
       <Row>
@@ -121,7 +125,7 @@ const Login = () => {
                             Sign Up
                           </Link>
                         </div>
-                        <hr className="my-4" />
+                        {/* <hr className="my-4" />
                         <p className="text-center">LOGIN WITH</p>
                         <div className="row">
                           <div className="col pr-2">
@@ -136,7 +140,7 @@ const Login = () => {
                               Facebook
                             </Button>
                           </div>
-                        </div>
+                        </div> */}
                       </Form>
                     )}
                   </Formik>

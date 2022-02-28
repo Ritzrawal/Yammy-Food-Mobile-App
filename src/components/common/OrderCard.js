@@ -17,8 +17,6 @@ const OrderCard = (props) => {
     }
   };
 
-  console.log('props from order', props);
-
   return (
     <div className="bg-white card mb-4 order-list shadow-sm">
       <div className="gold-members p-4">

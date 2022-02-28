@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import {
   Row,
   Col,
@@ -9,8 +9,10 @@ import {
   Image,
   Badge,
   Button,
+  Tooltip,
   Container,
   InputGroup,
+  OverlayTrigger,
 } from 'react-bootstrap';
 import ItemsCarousel from './common/ItemsCarousel';
 import GalleryCarousel from './common/GalleryCarousel';
@@ -21,17 +23,20 @@ import StarRating from './common/StarRating';
 import RatingBar from './common/RatingBar';
 import Review from './common/Review';
 import Icofont from 'react-icofont';
+import CategoryItems from './paginations/Category';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { addToCart } from '../store/redux/cart/actions';
+import { addToCart, updatePrice } from '../store/redux/cart/actions';
 import { getProduct, getRestaurant } from '../helpers/api.request';
 
 const Detail = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [product, setProduct] = useState('');
   const [singleResturant, setSingleResturant] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const [cartItems, setCartItems] = useState();
   const [totalPrice, setTotalPrice] = useState(0);
@@ -64,7 +69,7 @@ const Detail = () => {
 
   useEffect(() => {
     getTotalPrice();
-  }, [totalPrice]);
+  }, [cartReducer, totalPrice]);
 
   const getTotalPrice = () => {
     if (cartReducer.length > 0) {
@@ -72,7 +77,7 @@ const Detail = () => {
         (prev, next) => prev + next.price * next.quantity,
         0,
       );
-      console.log('hello total price ', newTotalPrice);
+      console.log('Hello total cart  ', newTotalPrice);
       setTotalPrice(newTotalPrice);
     }
   };
@@ -135,8 +140,9 @@ const Detail = () => {
     setShowAddressModal(false);
   };
   const getQty = ({ id, quantity }) => {
-    //console.log(id);
-    //console.log(quantity);
+    getTotalPrice();
+    console.log(id);
+    console.log(quantity);
   };
   const getStarValue = ({ value }) => {
     console.log(value);
@@ -152,6 +158,20 @@ const Detail = () => {
   };
 
   console.log('total prise', totalPrice);
+
+  const onCheckout = () => {
+    const price = {
+      deliveryFee: singleResturant.deliveryfee,
+      newTotal: Number(totalPrice) + Number(singleResturant.deliveryfee),
+    };
+    dispatch(updatePrice(price));
+    localStorage.setItem(
+      'price',
+      Number(totalPrice) + Number(singleResturant.deliveryfee),
+    );
+
+    history.push('checkout');
+  };
 
   return (
     <>
@@ -281,32 +301,11 @@ const Detail = () => {
 
                       <Row>
                         <h5 className="mb-4 mt-3 col-md-12">Best Sellers</h5>
-                        {product &&
-                          product.map((products, index) => {
-                            return (
-                              <Col md={4} sm={6} className="mb-4" key={index}>
-                                <BestSeller
-                                  id={index}
-                                  title={products.name}
-                                  subTitle={products.description}
-                                  imageAlt={products.photo}
-                                  image={products.photo}
-                                  imageClass="img-fluid item-img"
-                                  price={products.price}
-                                  priceUnit="$"
-                                  isNew={true}
-                                  products={products}
-                                  showPromoted={true}
-                                  promotedVariant="dark"
-                                  favIcoIconColor="text-danger"
-                                  rating="3.1 (300+)"
-                                  getValue={getQty}
-                                />
-                              </Col>
-                            );
-                          })}
+
+                        {}
+                        <CategoryItems itemsPerPage={12} />
                       </Row>
-                      <Row>
+                      {/* <Row>
                         <h5 className="mb-4 mt-3 col-md-12">
                           Quick Bites{' '}
                           <small className="h6 text-black-50">3 ITEMS</small>
@@ -343,8 +342,8 @@ const Detail = () => {
                             />
                           </div>
                         </Col>
-                      </Row>
-                      <Row>
+                      </Row> */}
+                      {/* <Row>
                         <h5 className="mb-4 mt-3 col-md-12">
                           Starters{' '}
                           <small className="h6 text-black-50">3 ITEMS</small>
@@ -449,7 +448,7 @@ const Detail = () => {
                             />
                           </div>
                         </Col>
-                      </Row>
+                      </Row> */}
                     </Tab.Pane>
                     <Tab.Pane eventKey="second">
                       <div className="position-relative">
@@ -707,25 +706,6 @@ const Detail = () => {
                 </div>
               </Col>
               <Col md={4}>
-                <div className="bg-white rounded shadow-sm text-white mb-4 p-4 clearfix restaurant-detailed-earn-pts card-icon-overlap">
-                  <Image
-                    fluid
-                    className="float-left mr-3"
-                    src="/img/earn-score-icon.png"
-                  />
-                  <h6 className="pt-0 text-primary mb-1 font-weight-bold">
-                    OFFER
-                  </h6>
-                  <p className="mb-0">
-                    60% off on orders above $99 | Use coupon{' '}
-                    <span className="text-danger font-weight-bold">
-                      OSAHAN50
-                    </span>
-                  </p>
-                  <div className="icon-overlap">
-                    <Icofont icon="sale-discount" />
-                  </div>
-                </div>
                 <div className="generator-bg rounded shadow-sm mb-4 p-4 osahan-cart-item">
                   <h5 className="mb-1 text-white">Your Order</h5>
                   <p className="mb-4 text-white">
@@ -750,29 +730,95 @@ const Detail = () => {
                         );
                       })}
                   </div>
-                  <div className="mb-2 bg-white rounded p-2 clearfix">
-                    <Image
-                      fluid
-                      className="float-left"
-                      src="/img/wallet-icon.png"
-                    />
-                    <h6 className="font-weight-bold text-right mb-2">
-                      Subtotal :{' '}
-                      <span className="text-danger">{totalPrice}</span>
-                    </h6>
-                    {/* <p className="seven-color mb-1 text-right">
+                  {cartReducer && cartReducer.length > 0 ? (
+                    <>
+                      {/* <div className="mb-2 bg-white rounded p-2 clearfix">
+                        <Image
+                          fluid
+                          className="float-left"
+                          src="/img/wallet-icon.png"
+                        />
+                        <h6 className="font-weight-bold text-right mb-2">
+                          Subtotal : $
+                          <span className="text-danger">{totalPrice}</span>
+                        </h6>
+                        <h6 className="text-right mb-2">
+                          Delivery Fee: $
+                          <span className="text-danger">
+                            {singleResturant.deliveryfee}
+                          </span>
+                        </h6>
+                        <h6 className="font-weight-bold text-right mb-2">
+                          Total: $
+                          <span className="text-danger">
+                            {Number(totalPrice) +
+                              Number(singleResturant.deliveryfee)}
+                          </span>
+                        </h6>
+                        <p className="seven-color mb-1 text-right">
                       Extra charges may apply
                     </p>
                     <p className="text-black mb-0 text-right">
                       You have saved $955 on the bill
-                    </p> */}
-                  </div>
-                  <Link
-                    to="/checkout"
-                    className="btn btn-success btn-block btn-lg">
-                    Checkout
-                    <Icofont icon="long-arrow-right" />
-                  </Link>
+                    </p>
+                      </div> */}
+
+                      <div className="mb-2 bg-white rounded p-2 clearfix">
+                        <p className="mb-1">
+                          Sub Total
+                          <span className="float-right text-dark">
+                            ${totalPrice}
+                          </span>
+                        </p>
+                        <p className="mb-1">
+                          Delivery Fee
+                          <OverlayTrigger
+                            key="top"
+                            placement="top"
+                            overlay={
+                              <Tooltip id="tooltip-top">
+                                Total discount breakup
+                              </Tooltip>
+                            }>
+                            <span className="text-info ml-1">
+                              <Icofont icon="info-circle" />
+                            </span>
+                          </OverlayTrigger>
+                          {singleResturant.deliveryfee > 0 ? (
+                            <span className="float-right text-dark">
+                              ${singleResturant.deliveryfee}
+                            </span>
+                          ) : (
+                            <span className="float-right text-dark">0</span>
+                          )}
+                        </p>
+                        {/* <p className="mb-1 text-success">
+                          Total Discount
+                          <span className="float-right text-success">
+                            $1884
+                          </span>
+                        </p> */}
+                        <hr />
+                        <h6 className="font-weight-bold mb-0">
+                          TO PAY{' '}
+                          <span className="float-right">
+                            ${' '}
+                            {Number(totalPrice) +
+                              Number(singleResturant.deliveryfee)}
+                          </span>
+                        </h6>
+                      </div>
+                      <div
+                        onClick={onCheckout}
+                        className="btn btn-success btn-block btn-lg">
+                        Checkout
+                        <Icofont icon="long-arrow-right" />
+                      </div>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+
                   <div className="pt-2"></div>
                   {/* <div className="alert alert-success" role="alert">
                     You have saved <strong>$1,884</strong> on the bill

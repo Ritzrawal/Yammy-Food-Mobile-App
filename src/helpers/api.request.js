@@ -19,3 +19,6 @@ export const getOrders = () => {
 export const getUsers = () => {
   return http.get('./users');
 };
+export const getAllMenu = () => {
+  return http.get('./menu');
+};

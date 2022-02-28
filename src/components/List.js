@@ -12,14 +12,16 @@ import {
 } from 'react-bootstrap';
 import Icofont from 'react-icofont';
 import PageTitle from './common/PageTitle';
-import CardItem from './common/CardItem';
-import { getRestaurant } from '../helpers/api.request';
+import HomePaginatedItems from './paginations/HomePage';
+import { getRestaurant, getAllMenu } from '../helpers/api.request';
 import CategoriesCarousel from './common/CategoriesCarousel';
 
 const List = () => {
   const [vendors, setVendors] = useState('');
+  const [menu, setMenu] = useState('');
 
   useEffect(() => {
+    getMenuItems();
     getCateroriesData();
   }, []);
 
@@ -31,17 +33,27 @@ const List = () => {
     setVendors(data.restaurants);
   };
 
+  const getMenuItems = async () => {
+    const { data, error } = await getAllMenu();
+    if (error) {
+      return console.log(error);
+    }
+
+    console.log('hello menu items', data);
+    setMenu(data.categories);
+  };
+
   return (
     <>
       <PageTitle
-        title="Offers Near You"
+        title="All Restaurants Near You"
         subTitle="Best deals at your favourite restaurants"
       />
       <section className="section pt-5 pb-5 products-listing">
         <Container>
           <Row className="d-none-m">
             <Col md={12}>
-              <Dropdown className="float-right">
+              {/* <Dropdown className="float-right">
                 <Dropdown.Toggle variant="outline-info">
                   Sort by: <span className="text-theme">Distance</span>{' '}
                   &nbsp;&nbsp;
@@ -53,9 +65,10 @@ const List = () => {
                   </Dropdown.Item>
                   <Dropdown.Item href="#/rating">Rating</Dropdown.Item>
                 </Dropdown.Menu>
-              </Dropdown>
+              </Dropdown> */}
               <h4 className="font-weight-bold mt-0 mb-3">
-                OFFERS <small className="h6 mb-0 ml-2">299 restaurants</small>
+                Total Restaurant{' '}
+                <small className="h6 mb-0 ml-2">{vendors.length}</small>
               </h4>
             </Col>
           </Row>
@@ -68,7 +81,7 @@ const List = () => {
                 <div className="filters-body">
                   <Accordion defaultActiveKey="0">
                     <div className="filters-card border-bottom p-4">
-                      <div className="filters-card-header" id="headingOne">
+                      {/* <div className="filters-card-header" id="headingOne">
                         <h6 className="mb-0">
                           <Accordion.Toggle
                             as={Button}
@@ -80,8 +93,8 @@ const List = () => {
                             <Icofont icon="arrow-down" className="ml-auto" />
                           </Accordion.Toggle>
                         </h6>
-                      </div>
-                      <Accordion.Collapse eventKey="0">
+                      </div> */}
+                      {/* <Accordion.Collapse eventKey="0">
                         <div className="filters-card-body card-shop-filters">
                           <Form.Check
                             custom
@@ -148,7 +161,7 @@ const List = () => {
                             </Link>
                           </div>
                         </div>
-                      </Accordion.Collapse>
+                      </Accordion.Collapse> */}
                     </div>
                     <div className="filters-card border-bottom p-4">
                       <div className="filters-card-header" id="headingTwo">
@@ -159,7 +172,7 @@ const List = () => {
                             variant="link"
                             className="text-left d-flex align-items-center p-0"
                             eventKey="1">
-                            All cuisines{' '}
+                            All Menu
                             <Icofont icon="arrow-down" className="ml-auto" />
                           </Accordion.Toggle>
                         </h6>
@@ -167,7 +180,7 @@ const List = () => {
 
                       <Accordion.Collapse eventKey="1">
                         <div className="filters-card-body card-shop-filters">
-                          <form className="filters-search mb-3">
+                          {/* <form className="filters-search mb-3">
                             <Form.Group>
                               <Icofont icon="search" />
                               <Form.Control
@@ -175,124 +188,31 @@ const List = () => {
                                 placeholder="Start typing to search..."
                               />
                             </Form.Group>
-                          </form>
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            defaultChecked={true}
-                            id="custom-cb6"
-                            label={
-                              <React.Fragment>
-                                American{' '}
-                                <small className="text-black-50">156</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb7"
-                            label={
-                              <React.Fragment>
-                                Pizza{' '}
-                                <small className="text-black-50">120</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb8"
-                            label={
-                              <React.Fragment>
-                                Healthy{' '}
-                                <small className="text-black-50">130</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb9"
-                            label={
-                              <React.Fragment>
-                                Vegetarian{' '}
-                                <small className="text-black-50">120</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb10"
-                            label={
-                              <React.Fragment>
-                                Chinese{' '}
-                                <small className="text-black-50">111</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb11"
-                            label={
-                              <React.Fragment>
-                                Hamburgers{' '}
-                                <small className="text-black-50">95</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb12"
-                            label={
-                              <React.Fragment>
-                                Dessert{' '}
-                                <small className="text-black-50">50</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb13"
-                            label={
-                              <React.Fragment>
-                                Chicken{' '}
-                                <small className="text-black-50">32</small>
-                              </React.Fragment>
-                            }
-                          />
-
-                          <Form.Check
-                            custom
-                            type="checkbox"
-                            id="custom-cb14"
-                            label={
-                              <React.Fragment>
-                                Indian{' '}
-                                <small className="text-black-50">156</small>
-                              </React.Fragment>
-                            }
-                          />
-                          <div className="mt-2">
-                            <Link to="#" className="link">
-                              See all
-                            </Link>
-                          </div>
+                          </form> */}
+                          {menu &&
+                            menu.map((menuItems, index) => {
+                              return (
+                                <Form.Check
+                                  key={index}
+                                  custom
+                                  type="checkbox"
+                                  defaultChecked={true}
+                                  id={menuItems.id}
+                                  label={
+                                    <React.Fragment>
+                                      {menuItems.title}
+                                      {/* <small className="text-black-50">
+                                        156
+                                      </small> */}
+                                    </React.Fragment>
+                                  }
+                                />
+                              );
+                            })}
                         </div>
                       </Accordion.Collapse>
                     </div>
-                    <div className="filters-card border-bottom p-4">
+                    {/* <div className="filters-card border-bottom p-4">
                       <div className="filters-card-header" id="headingOne">
                         <h6 className="mb-0">
                           <Accordion.Toggle
@@ -346,8 +266,8 @@ const List = () => {
                           />
                         </div>
                       </Accordion.Collapse>
-                    </div>
-                    <div className="filters-card border-bottom p-4">
+                    </div> */}
+                    {/* <div className="filters-card border-bottom p-4">
                       <div className="filters-card-header" id="headingOne">
                         <h6 className="mb-0">
                           <Accordion.Toggle
@@ -405,8 +325,8 @@ const List = () => {
                           </div>
                         </div>
                       </Accordion.Collapse>
-                    </div>
-                    <div className="filters-card border-bottom p-4">
+                    </div> */}
+                    {/* <div className="filters-card border-bottom p-4">
                       <div className="filters-card-header" id="headingOne">
                         <h6 className="mb-0">
                           <Accordion.Toggle
@@ -459,11 +379,11 @@ const List = () => {
                           />
                         </div>
                       </Accordion.Collapse>
-                    </div>
+                    </div> */}
                   </Accordion>
                 </div>
               </div>
-              <div className="filters pt-2">
+              {/* <div className="filters pt-2">
                 <div className="filters-body rounded shadow-sm bg-white">
                   <div className="filters-card p-4">
                     <div>
@@ -499,46 +419,18 @@ const List = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </Col>
             <Col md={9}>
               <CategoriesCarousel />
               <Row>
-                {vendors &&
-                  vendors.map((resturnat, index) => {
-                    return (
-                      <Col md={4} sm={6} className="mb-4 pb-2">
-                        <CardItem
-                          id={index}
-                          key={index}
-                          title={resturnat.title}
-                          subTitle={resturnat.description}
-                          imageAlt="Product"
-                          image={resturnat.photo}
-                          time={resturnat.deliverytime}
-                          price={resturnat.price}
-                          imageClass="img-fluid item-img"
-                          linkUrl="detail"
-                          offerText="65% off | Use Coupon OSAHAN50"
-                          time={resturnat.deliverytime}
-                          price={resturnat.price}
-                          showPromoted={true}
-                          promotedVariant="dark"
-                          favIcoIconColor="text-danger"
-                          rating="3.1 (300+)"
-                          minamount={resturnat.minamount}
-                          deliveryfee={resturnat.deliveryfee}
-                        />
-                      </Col>
-                    );
-                  })}
-
-                <Col md={12} className="text-center load-more">
+                <HomePaginatedItems itemsPerPage={12} />
+                {/* <Col md={12} className="text-center load-more">
                   <Button variant="primary" type="button" disabled="">
                     <Spinner animation="grow" size="sm" className="mr-1" />
                     Loading...
                   </Button>
-                </Col>
+                </Col> */}
               </Row>
             </Col>
           </Row>
