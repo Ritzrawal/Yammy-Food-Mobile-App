@@ -55,9 +55,11 @@ const OrderCard = (props) => {
                 to={props.helpLink}>
                 <Icofont icon="headphone-alt" /> HELP
               </Link>
-              <Link className="btn btn-sm btn-primary" to={props.detailLink}>
-                <Icofont icon="refresh" /> REORDER
-              </Link>
+              <div
+                className="btn btn-sm btn-primary"
+                onClick={() => props.onDelete(props.id)}>
+                <Icofont icon="refresh" /> DELETE
+              </div>
             </div>
             <p className="mb-0 text-black text-primary pt-2">
               <span className="text-black font-weight-bold"> Total Paid:</span>{' '}

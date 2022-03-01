@@ -33,6 +33,7 @@ const Detail = () => {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const [quantity, setQuantity] = useState(1);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [product, setProduct] = useState('');
   const [singleResturant, setSingleResturant] = useState('');
@@ -40,6 +41,7 @@ const Detail = () => {
 
   const [cartItems, setCartItems] = useState();
   const [totalPrice, setTotalPrice] = useState(0);
+  const [price, setPrice] = useState(0);
 
   const cartReducer = useSelector((state) => state.cart.cartItems);
   const vendors = useSelector((state) => state.vendor.vendors);
@@ -69,12 +71,12 @@ const Detail = () => {
 
   useEffect(() => {
     getTotalPrice();
-  }, [cartReducer, totalPrice]);
+  }, [cartReducer, totalPrice, quantity]);
 
   const getTotalPrice = () => {
     if (cartReducer.length > 0) {
       const newTotalPrice = cartReducer.reduce(
-        (prev, next) => prev + next.price * next.quantity,
+        (prev, next) => prev + next.price * quantity,
         0,
       );
       console.log('Hello total cart  ', newTotalPrice);
@@ -139,8 +141,21 @@ const Detail = () => {
   const hideAddressModal = () => {
     setShowAddressModal(false);
   };
+
+  // useEffect(() => {
+  //   getQty();
+  // }, []);
+
   const getQty = ({ id, quantity }) => {
-    getTotalPrice();
+    if (quantity) {
+      const cartTotalPrice = cartReducer.reduce(
+        (prev, next) => prev + next.price * quantity,
+        0,
+      );
+      console.log('cart price updated', cartTotalPrice, price);
+      return setQuantity(quantity);
+    }
+
     console.log(id);
     console.log(quantity);
   };

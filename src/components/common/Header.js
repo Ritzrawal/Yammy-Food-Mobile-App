@@ -170,7 +170,7 @@ class Header extends React.Component {
                   </NavDropdown.Item>
                 </NavDropdown> */}
 
-                <NavDropdown
+                {/* <NavDropdown
                   activeclassname="active"
                   alignRight
                   className="dropdown-cart"
@@ -204,21 +204,6 @@ class Header extends React.Component {
                         NavLinkText="View Full Menu"
                       />
                     }
-                    {/* <div className="dropdown-cart-top-body border-top p-4">
-                      {this.state &&
-                        this.state.cartItems &&
-                        this.state.cartItems.map((cart, index) => {
-                          return (
-                            <CartDropdownItem
-                              key={index}
-                              icoIcon="ui-press"
-                              iconClass="text-success food-item"
-                              title={cart.name}
-                              price={cart.price}
-                            />
-                          );
-                        })}
-                    </div> */}
                     <div className="dropdown-cart-top-footer border-top p-4">
                       <p className="mb-0 font-weight-bold text-secondary">
                         Sub Total{' '}
@@ -239,7 +224,7 @@ class Header extends React.Component {
                       </NavDropdown.Item>
                     </div>
                   </div>
-                </NavDropdown>
+                </NavDropdown> */}
                 <Nav.Link
                   eventKey={1}
                   as={NavLink}

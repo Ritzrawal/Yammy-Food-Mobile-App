@@ -27,42 +27,6 @@ const OrderListPaginatedScreen = ({ itemsPerPage }) => {
     .where('authorID', '==', currentUser)
     .orderBy('createdAt', 'desc');
 
-  //   useEffect(() => {
-  //     getData();
-  //   }, []);
-
-  //   const getData = () => {
-  //     const currentUser = localStorage.getItem('currentUser');
-  //     const token = getToken();
-  //     const config = {
-  //       headers: { Authorization: token },
-  //     };
-
-  //     const extraQueryParams = null;
-  //     setLoading(true);
-
-  //     fetch(
-  //       baseAPIURL + listName + (extraQueryParams ? extraQueryParams : ''),
-  //       config,
-  //     )
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         const orders =
-  //           data &&
-  //           data.orders
-  //             .filter((user) => user.authorID === currentUser)
-  //             .map((userId) => {
-  //               return userId;
-  //             });
-  //         setData(orders);
-
-  //         setLoading(false);
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //       });
-  //   };
-
   useEffect(() => {
     unsubscribe.current = ref.onSnapshot(onCollectionUpdate, (error) => {
       console.log(error);
@@ -93,7 +57,6 @@ const OrderListPaginatedScreen = ({ itemsPerPage }) => {
 
   useEffect(() => {
     const endOffset = itemOffset + itemsPerPage;
-    console.log(`Loading items from ${itemOffset} to ${endOffset}`);
     setRestaurantsOrder(data.slice(itemOffset, endOffset));
     setControlledPageCount(Math.ceil(data.length / itemsPerPage));
   }, [itemOffset, itemsPerPage, data]);
@@ -105,14 +68,16 @@ const OrderListPaginatedScreen = ({ itemsPerPage }) => {
     );
     setItemOffset(event.selected);
     setPageSize(newOffset);
-    // getData();
   };
 
-  ///Order data testing
-
-  //   const onDelete = (order) => {
-  //     apiManager.onDelete(order.id);
-  //   };
+  const onDeleteOrder = (orderID) => {
+    firebase
+      .firestore()
+      .collection('restaurant_orders')
+      .doc(orderID)
+      .delete()
+      .then((result) => console.warn(result));
+  };
 
   return (
     <>
@@ -120,6 +85,7 @@ const OrderListPaginatedScreen = ({ itemsPerPage }) => {
         resOrder.map((orders, index) => {
           return (
             <OrderCard
+              id={orders.id}
               address={orders.address.city}
               key={index}
               image={orders.products.photo}
@@ -135,6 +101,7 @@ const OrderListPaginatedScreen = ({ itemsPerPage }) => {
               detailLink="/detail"
               status={orders.status}
               vendor={orders.vendor}
+              onDelete={onDeleteOrder}
             />
           );
         })}

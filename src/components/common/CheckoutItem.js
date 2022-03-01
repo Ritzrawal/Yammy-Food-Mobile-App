@@ -91,7 +91,7 @@ CheckoutItem.propTypes = {
   show: PropTypes.bool.isRequired,
   minValue: PropTypes.number,
   maxValue: PropTypes.number,
-  getValue: PropTypes.func.isRequired,
+  getVgetValuealue: PropTypes.func.isRequired,
 };
 CheckoutItem.defaultProps = {
   show: true,
