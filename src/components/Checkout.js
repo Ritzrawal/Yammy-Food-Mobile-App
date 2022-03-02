@@ -94,7 +94,7 @@ const Checkout = () => {
         .map((userId) => {
           return userId;
         });
-
+    console.log('user filter data', userId);
     return setUser(userId[0]);
   };
 
@@ -182,6 +182,7 @@ const Checkout = () => {
 
   console.log('get the user value', isUser);
 
+  const Address = isUser.shippingAddress;
   return (
     <section className="offer-dedicated-body mt-4 mb-4 pt-2 pb-2">
       <AddAddressModal
@@ -206,19 +207,19 @@ const Checkout = () => {
                 <Row>
                   <Col md={6}>
                     <ChooseAddressCard
-                      title="Work"
+                      title="Shipping Address"
                       icoIcon="briefcase"
                       iconclassName="icofont-3x"
-                      address="NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India"
+                      address={isUser.shippingAddress}
                     />
                   </Col>
                   <Col md={6}>
                     <ChooseAddressCard
-                      title="Work"
+                      title="Shipping Address"
                       icoIcon="briefcase"
                       iconclassName="icofont-3x"
                       type="newAddress"
-                      address="NCC, Model Town Rd, Pritm Nagar, Model Town, Ludhiana, Punjab 141002, India"
+                      address={isUser.shippingAddress}
                       onAddNewClick={() => setShowAddressModal(true)}
                     />
                   </Col>

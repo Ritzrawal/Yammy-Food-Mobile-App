@@ -43,6 +43,7 @@ const PaymentForm = ({ placeOrder }) => {
   const totalPrice = useSelector((state) => state.cart.price);
 
   const handleSubmit = async (e) => {
+    const price = localStorage.getItem('price');
     e.preventDefault();
 
     if (!stripe || !elements) {
@@ -57,10 +58,13 @@ const PaymentForm = ({ placeOrder }) => {
     if (!error) {
       try {
         const { id } = paymentMethod;
-        const response = await axios.post('http://localhost:4000/payment', {
-          amount: totalPrice.newTotal,
-          id,
-        });
+        const response = await axios.post(
+          'https://yammy-web-stripe.herokuapp.com/payment',
+          {
+            amount: price,
+            id,
+          },
+        );
 
         if (response.data.success) {
           console.log('response payment', response.data);
