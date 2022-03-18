@@ -58,13 +58,10 @@ const PaymentForm = ({ placeOrder }) => {
     if (!error) {
       try {
         const { id } = paymentMethod;
-        const response = await axios.post(
-          'https://yammy-web-stripe.herokuapp.com/payment',
-          {
-            amount: price,
-            id,
-          },
-        );
+        const response = await axios.post('http://localhost:4000/payment', {
+          amount: price,
+          id,
+        });
 
         if (response.data.success) {
           console.log('response payment', response.data);

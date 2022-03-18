@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Image, Badge, Button } from 'react-bootstrap';
+import { Image, Badge, Button, Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Icofont from 'react-icofont';
 import { connect } from 'react-redux';
@@ -22,6 +22,7 @@ class BestSeller extends React.Component {
       min: this.props.minValue || 0,
       loading: true,
       addnote: '',
+      modalShow: false,
       cartAdded: false,
       itemAlreadyInCart: {},
       indexAlreadyInCart: -1,
@@ -104,6 +105,10 @@ class BestSeller extends React.Component {
     }
   };
 
+  showAllergyInfo = () => {
+    this.setState({ modalShow: true });
+  };
+
   render() {
     return (
       <div className="list-card bg-white h-100 rounded overflow-hidden position-relative shadow-sm">
@@ -153,10 +158,33 @@ class BestSeller extends React.Component {
                   {this.props.priceUnit}
                   {this.props.price}{' '}
                 </Link>
-                {this.props.isNew ? (
-                  <Badge variant="success" className="ml-1">
-                    NEW
-                  </Badge>
+                {this.props.alleryinfo ? (
+                  <>
+                    <Badge
+                      variant="success"
+                      className="badge-allergic-info"
+                      onClick={this.showAllergyInfo}>
+                      Allergic info
+                    </Badge>
+                    <Modal
+                      centered
+                      closeButton={true}
+                      // className="modal-allergic-info"
+                      show={this.state.modalShow}
+                      onHide={() => this.setState({ modalShow: false })}>
+                      <Modal.Header closeButton>
+                        <Modal.Title>Allergic Info</Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body>{this.props.alleryinfo}</Modal.Body>
+                      <Modal.Footer>
+                        <Button
+                          variant="secondary"
+                          onClick={() => this.setState({ modalShow: false })}>
+                          Close
+                        </Button>
+                      </Modal.Footer>
+                    </Modal>
+                  </>
                 ) : (
                   ''
                 )}

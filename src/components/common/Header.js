@@ -78,7 +78,8 @@ class Header extends React.Component {
           className="navbar-light osahan-nav shadow-sm">
           <Container>
             <Navbar.Brand to="/">
-              <Image src="/img/logo.png" alt="" />
+              Yammy Logo
+              {/* <Image src="/img/logo.png" alt="" /> */}
             </Navbar.Brand>
             <Navbar.Toggle />
             <Navbar.Collapse id="navbarNavDropdown">
@@ -225,13 +226,13 @@ class Header extends React.Component {
                     </div>
                   </div>
                 </NavDropdown> */}
-                <Nav.Link
+                {/* <Nav.Link
                   eventKey={1}
                   as={NavLink}
                   activeclassname="active"
                   to="/login">
                   <Icofont icon="user" /> Login
-                </Nav.Link>
+                </Nav.Link> */}
                 <NavDropdown
                   alignRight
                   title={

@@ -40,3 +40,7 @@
 .skeleton-container-display-image {
   display: flex;
 }
+
+.badge-allergic-info {
+  cursor: pointer;
+}

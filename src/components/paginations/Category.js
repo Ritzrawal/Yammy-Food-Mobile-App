@@ -91,6 +91,7 @@ const CategoryItems = ({ itemsPerPage }) => {
                     subTitle={products.description}
                     imageAlt={products.photo}
                     image={products.photo}
+                    alleryinfo={products.alleryinfo}
                     imageClass="img-fluid-item-img"
                     price={products.price}
                     priceUnit="$"
