@@ -36,6 +36,7 @@
   color: #ff3008;
 }
 .img-fluid-product {
+  object-fit: cover;
   width: 100%;
   height: 90%;
 }
@@ -111,6 +112,7 @@
 
 .img-fluid-item-img {
   height: 100% !important;
+  object-fit: cover;
   width: 250px;
 }
 
