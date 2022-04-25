@@ -13,6 +13,8 @@ import SkeletonProduct from './common/Loader/Product';
 
 import { getCaterogies } from '../helpers/api.request';
 
+import Location from './Location';
+
 const Index = () => {
   const [vendors, setVendors] = useState('');
   const [loading, setLoading] = useState(true);

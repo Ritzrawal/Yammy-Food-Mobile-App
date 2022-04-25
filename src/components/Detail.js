@@ -24,12 +24,16 @@ import RatingBar from './common/RatingBar';
 import Review from './common/Review';
 import Icofont from 'react-icofont';
 import CategoryItems from './paginations/Category';
+import { geolocated } from 'react-geolocated';
+import { getPreciseDistance, getDistance } from 'geolib';
+import { usePosition } from 'use-position';
 
+import { getUsers } from '../helpers/api.request';
 import { useSelector, useDispatch } from 'react-redux';
 import { addToCart, updatePrice } from '../store/redux/cart/actions';
 import { getProduct, getRestaurant } from '../helpers/api.request';
 
-const Detail = () => {
+const Detail = (props) => {
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -42,6 +46,12 @@ const Detail = () => {
   const [cartItems, setCartItems] = useState();
   const [totalPrice, setTotalPrice] = useState(0);
   const [price, setPrice] = useState(0);
+  const [delivery, setDelivery] = useState(0);
+
+  const [userLocation, setUserLocation] = useState('');
+
+  const [currentLat, setCurrentLat] = useState();
+  const [currentLng, setCurrentLng] = useState();
 
   const cartReducer = useSelector((state) => state.cart.cartItems);
   const vendors = useSelector((state) => state.vendor.vendors);
@@ -71,6 +81,7 @@ const Detail = () => {
 
   useEffect(() => {
     getTotalPrice();
+    getDistanceValue();
   }, [cartReducer, totalPrice, quantity]);
 
   const getTotalPrice = () => {
@@ -79,25 +90,21 @@ const Detail = () => {
         (prev, next) => prev + next.price * quantity,
         0,
       );
-      console.log('Hello total cart  ', newTotalPrice);
+
       setTotalPrice(newTotalPrice);
     }
   };
 
   useEffect(() => {
     getProductList();
-    getSingleResturnat();
-    // getCartItems();
+    getCurrentUser();
   }, []);
 
-  // const getProductList = async () => {
-  //   const { data, error } = await getProduct();
-  //   if (error) {
-  //     return console.log(error);
-  //   }
-  //   setProduct(data.products);
-  //   // console.log('hello product', data.products);
-  // };
+  useEffect(() => {
+    (async () => {
+      await getSingleResturnat();
+    })();
+  }, []);
 
   const getProductList = async () => {
     const vendorID = localStorage.getItem('vendorID');
@@ -135,16 +142,37 @@ const Detail = () => {
           return resturnat;
         });
 
+    localStorage.setItem('lat', JSON.stringify(resturnt[0].latitude));
+    localStorage.setItem('lng', JSON.stringify(resturnt[0].longitude));
+    localStorage.setItem('delivery', JSON.stringify(resturnt[0].delivery));
+    localStorage.setItem('deliveryfee', resturnt[0].deliveryfee);
+
     return setSingleResturant(resturnt[0]);
+  };
+
+  const getCurrentUser = async () => {
+    const currentUser = localStorage.getItem('currentUser');
+
+    const { error, data } = await getUsers();
+
+    if (error) {
+      console.log(error);
+    }
+
+    const userId =
+      data &&
+      data.users
+        .filter((user) => user.id === currentUser)
+        .map((userId) => {
+          return userId;
+        });
+    localStorage.setItem('location', JSON.stringify(userId[0].location));
+    return setUserLocation(userId[0]);
   };
 
   const hideAddressModal = () => {
     setShowAddressModal(false);
   };
-
-  // useEffect(() => {
-  //   getQty();
-  // }, []);
 
   const getQty = ({ id, quantity }) => {
     if (quantity) {
@@ -152,16 +180,12 @@ const Detail = () => {
         (prev, next) => prev + next.price * quantity,
         0,
       );
-      console.log('cart price updated', cartTotalPrice, price);
+
       return setQuantity(quantity);
     }
-
-    console.log(id);
-    console.log(quantity);
   };
   const getStarValue = ({ value }) => {
     console.log(value);
-    //console.log(quantity);
   };
 
   const getCartItems = () => {
@@ -172,18 +196,50 @@ const Detail = () => {
     }
   };
 
-  console.log('total prise', totalPrice);
+  const getDistanceValue = async () => {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      const lat = localStorage.getItem('lat');
+      const lng = localStorage.getItem('lng');
+      const deliveryfee = localStorage.getItem('deliveryfee');
+
+      const delivery = JSON.parse(localStorage.getItem('delivery'));
+
+      var dis = getPreciseDistance(
+        {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        },
+        {
+          latitude: lat,
+          longitude: lng,
+        },
+      );
+
+      const netDistance = Math.round(dis / 1000);
+
+      const getAmount = (data, target) =>
+        data.reduce((acc, obj) =>
+          Math.abs(target - obj.distance) < Math.abs(target - acc.distance)
+            ? obj
+            : acc,
+        );
+
+      const newamount = getAmount(delivery, netDistance);
+      console.log('delivery fee', deliveryfee, totalPrice);
+      if (deliveryfee <= totalPrice) {
+        return setDelivery(0);
+      }
+      return setDelivery(newamount.amount);
+    });
+  };
 
   const onCheckout = () => {
     const price = {
-      deliveryFee: singleResturant.deliveryfee,
-      newTotal: Number(totalPrice) + Number(singleResturant.deliveryfee),
+      deliveryFee: delivery,
+      newTotal: Number(totalPrice) + Number(delivery),
     };
     dispatch(updatePrice(price));
-    localStorage.setItem(
-      'price',
-      Number(totalPrice) + Number(singleResturant.deliveryfee),
-    );
+    localStorage.setItem('price', Number(totalPrice) + Number(delivery));
 
     history.push('checkout');
   };
@@ -316,9 +372,10 @@ const Detail = () => {
 
                       <Row>
                         <h5 className="mb-4 mt-3 col-md-12">Best Sellers</h5>
-
-                        {}
-                        <CategoryItems itemsPerPage={12} />
+                        {/* <h5>{props?.coords?.latitude}</h5>
+                        <h5>{props?.coords?.longitude}</h5> */}
+                        {/* <h1>{(latitude, longitude)}</h1> */}
+                        <CategoryItems itemsPerPage={12} data={props.coords} />
                       </Row>
                       {/* <Row>
                         <h5 className="mb-4 mt-3 col-md-12">
@@ -799,27 +856,26 @@ const Detail = () => {
                               <Icofont icon="info-circle" />
                             </span>
                           </OverlayTrigger>
-                          {singleResturant.deliveryfee > 0 ? (
+                          <span className="float-right text-dark">
+                            {delivery === 0
+                              ? 'Free'
+                              : delivery === 'No delivery'
+                              ? 'No Delivery'
+                              : ' $' + delivery}
+                          </span>
+                          {/* {delivery > 0 ? (
                             <span className="float-right text-dark">
-                              ${singleResturant.deliveryfee}
+                              ${delivery}
                             </span>
                           ) : (
                             <span className="float-right text-dark">0</span>
-                          )}
+                          )} */}
                         </p>
-                        {/* <p className="mb-1 text-success">
-                          Total Discount
-                          <span className="float-right text-success">
-                            $1884
-                          </span>
-                        </p> */}
                         <hr />
                         <h6 className="font-weight-bold mb-0">
                           TO PAY{' '}
                           <span className="float-right">
-                            ${' '}
-                            {Number(totalPrice) +
-                              Number(singleResturant.deliveryfee)}
+                            $ {Number(totalPrice) + Number(delivery)}
                           </span>
                         </h6>
                       </div>
@@ -835,9 +891,6 @@ const Detail = () => {
                   )}
 
                   <div className="pt-2"></div>
-                  {/* <div className="alert alert-success" role="alert">
-                    You have saved <strong>$1,884</strong> on the bill
-                  </div> */}
                   <div className="pt-2"></div>
                   <div className="text-center pt-2">
                     <Image
@@ -861,4 +914,11 @@ const Detail = () => {
   );
 };
 
-export default Detail;
+// export default Detail;
+
+export default geolocated({
+  positionOptions: {
+    enableHighAccuracy: false,
+  },
+  userDecisionTimeout: 5000,
+})(Detail);

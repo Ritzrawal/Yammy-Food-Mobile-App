@@ -12,7 +12,7 @@ import SkeletonProduct from '../common/Loader/Product';
 
 import '../component.css';
 
-const CategoryItems = ({ itemsPerPage }) => {
+const CategoryItems = ({ itemsPerPage, coords }) => {
   const listName = 'products';
   const pageIndex = 0;
 
